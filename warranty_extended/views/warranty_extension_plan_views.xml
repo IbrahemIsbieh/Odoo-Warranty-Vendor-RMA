@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_warranty_extension_plan_list" model="ir.ui.view">
+        <field name="name">warranty.extension.plan.list</field>
+        <field name="model">warranty.extension.plan</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name"/>
+                <field name="months"/>
+                <field name="percent"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_warranty_extension_plan" model="ir.actions.act_window">
+        <field name="name">Extension Plans</field>
+        <field name="res_model">warranty.extension.plan</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem id="menu_warranty_config" name="Configuration"
+              parent="warranty_management.menu_warranty_root" sequence="90"
+              groups="warranty_management.group_warranty_manager"/>
+    <menuitem id="menu_warranty_extension_plan" name="Extension Plans"
+              parent="menu_warranty_config" action="action_warranty_extension_plan"
+              sequence="10"/>
+</odoo>

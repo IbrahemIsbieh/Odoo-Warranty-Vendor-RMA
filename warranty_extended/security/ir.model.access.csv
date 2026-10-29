@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_warranty_extension_plan_user,plan user,model_warranty_extension_plan,warranty_management.group_warranty_user,1,0,0,0
+access_warranty_extension_plan_manager,plan manager,model_warranty_extension_plan,warranty_management.group_warranty_manager,1,1,1,1
+access_warranty_extension_user,extension user,model_warranty_extension,warranty_management.group_warranty_user,1,1,1,0
+access_warranty_extension_manager,extension manager,model_warranty_extension,warranty_management.group_warranty_manager,1,1,1,1
+access_warranty_extension_portal,extension portal,model_warranty_extension,base.group_portal,1,0,0,0
+access_warranty_extend_wizard,extend wizard,model_warranty_extend_wizard,warranty_management.group_warranty_user,1,1,1,1

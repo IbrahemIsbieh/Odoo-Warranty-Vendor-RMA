@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Home tiles -->
+    <template id="portal_my_home_warranty" inherit_id="portal.portal_my_home"
+              customize_show="True" priority="45">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Warranties</t>
+                <t t-set="url" t-value="'/my/warranties'"/>
+                <t t-set="placeholder_count" t-value="'warranty_count'"/>
+            </t>
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Warranty Claims</t>
+                <t t-set="url" t-value="'/my/warranty-claims'"/>
+                <t t-set="placeholder_count" t-value="'claim_count'"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Warranties list -->
+    <template id="portal_my_warranties" name="My Warranties">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Warranties</t>
+            </t>
+            <t t-if="not warranties">
+                <p class="alert alert-info">You have no warranties yet.</p>
+            </t>
+            <t t-if="warranties" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Reference</th>
+                        <th>Product</th>
+                        <th>Expires</th>
+                        <th class="text-end">Days left</th>
+                        <th class="text-end">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="warranties" t-as="w">
+                        <tr>
+                            <td><a t-attf-href="/my/warranties/#{w.id}"><t t-out="w.name"/></a></td>
+                            <td><t t-out="w.product_id.display_name"/></td>
+                            <td><span t-field="w.end_date"/></td>
+                            <td class="text-end"><t t-out="w.days_left"/></td>
+                            <td class="text-end">
+                                <span t-if="w.state == 'active'" class="badge text-bg-success">Active</span>
+                                <span t-elif="w.state == 'expired'" class="badge text-bg-danger">Expired</span>
+                                <span t-else="" class="badge text-bg-secondary">Cancelled</span>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <!-- Warranty detail -->
+    <template id="portal_warranty_detail" name="Warranty Detail">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="mb-0"><t t-out="warranty.name"/></h3>
+                    <a t-if="warranty.state == 'active'"
+                       t-attf-href="/my/warranties/#{warranty.id}/claim"
+                       class="btn btn-primary">Submit a Claim</a>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Product:</strong> <t t-out="warranty.product_id.display_name"/></p>
+                        <p><strong>Quantity:</strong> <t t-out="warranty.quantity"/></p>
+                        <p><strong>Sale order:</strong> <t t-out="warranty.sale_order_id.name"/></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Start:</strong> <span t-field="warranty.start_date"/></p>
+                        <p><strong>End:</strong> <span t-field="warranty.end_date"/></p>
+                        <p><strong>Days left:</strong> <t t-out="warranty.days_left"/></p>
+                    </div>
+                </div>
+                <h5 class="mt-4">Claims</h5>
+                <t t-if="not warranty.claim_ids">
+                    <p class="text-muted">No claims for this warranty.</p>
+                </t>
+                <ul t-if="warranty.claim_ids" class="list-group">
+                    <li t-foreach="warranty.claim_ids" t-as="c" class="list-group-item">
+                        <a t-attf-href="/my/warranty-claims/#{c.id}"><t t-out="c.name"/></a>
+                        <span class="badge text-bg-info float-end"><t t-out="c.state"/></span>
+                    </li>
+                </ul>
+            </div>
+        </t>
+    </template>
+
+    <!-- New claim form -->
+    <template id="portal_new_claim" name="New Warranty Claim">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-3" style="max-width:700px">
+                <h3>Submit a Claim for <t t-out="warranty.product_id.display_name"/></h3>
+                <p class="text-muted">Warranty <t t-out="warranty.name"/> valid until
+                    <span t-field="warranty.end_date"/></p>
+                <div t-if="error" class="alert alert-danger" t-out="error"/>
+                <form t-attf-action="/my/warranties/#{warranty.id}/claim/submit"
+                      method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="mb-3">
+                        <label class="form-label" for="description">Describe the issue</label>
+                        <textarea name="description" id="description" rows="5"
+                                  class="form-control" required="required"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="attachments">Photos (optional)</label>
+                        <input type="file" name="attachments" id="attachments"
+                               class="form-control" multiple="multiple" accept="image/*,.pdf"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Claim</button>
+                    <a t-attf-href="/my/warranties/#{warranty.id}" class="btn btn-link">Cancel</a>
+                </form>
+            </div>
+        </t>
+    </template>
+
+    <!-- Claims list -->
+    <template id="portal_my_claims" name="My Warranty Claims">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Warranty Claims</t>
+            </t>
+            <t t-if="not claims">
+                <p class="alert alert-info">You have no claims yet.</p>
+            </t>
+            <t t-if="claims" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Reference</th>
+                        <th>Product</th>
+                        <th>Date</th>
+                        <th class="text-end">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="claims" t-as="c">
+                        <tr>
+                            <td><a t-attf-href="/my/warranty-claims/#{c.id}"><t t-out="c.name"/></a></td>
+                            <td><t t-out="c.product_id.display_name"/></td>
+                            <td><span t-field="c.claim_date"/></td>
+                            <td class="text-end"><span class="badge text-bg-info"><t t-out="c.state"/></span></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <!-- Claim detail -->
+    <template id="portal_claim_detail" name="Warranty Claim Detail">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-3">
+                <h3><t t-out="claim.name"/>
+                    <span class="badge text-bg-info ms-2"><t t-out="claim.state"/></span>
+                </h3>
+                <p><strong>Product:</strong> <t t-out="claim.product_id.display_name"/></p>
+                <p><strong>Date:</strong> <span t-field="claim.claim_date"/></p>
+                <p><strong>Issue:</strong></p>
+                <p style="white-space:pre-wrap" t-out="claim.description"/>
+                <div t-if="claim.state == 'rejected'" class="alert alert-danger">
+                    <strong>Rejected:</strong> <t t-out="claim.reject_reason"/>
+                </div>
+                <div t-if="claim.resolution" class="alert alert-success">
+                    <strong>Resolution:</strong> <t t-out="claim.resolution"/>
+                    <div t-if="claim.resolution_note" t-out="claim.resolution_note"/>
+                </div>
+                <div class="row" t-if="claim.attachment_ids">
+                    <div class="col-12"><strong>Attachments</strong></div>
+                    <t t-foreach="claim.attachment_ids" t-as="a">
+                        <div class="col-auto">
+                            <a t-attf-href="/web/content/#{a.id}?download=true">
+                                <i class="fa fa-paperclip"/> <t t-out="a.name"/>
+                            </a>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

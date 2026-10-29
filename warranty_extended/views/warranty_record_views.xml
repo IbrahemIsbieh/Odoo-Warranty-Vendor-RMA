@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_warranty_record_form_extended" model="ir.ui.view">
+        <field name="name">warranty.record.form.extended</field>
+        <field name="model">warranty.record</field>
+        <field name="inherit_id" ref="warranty_management.view_warranty_record_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_open_extend_wizard" type="object"
+                        string="Extend Warranty" class="btn-primary"
+                        invisible="state != 'active'"/>
+            </xpath>
+            <xpath expr="//sheet/group" position="after">
+                <notebook>
+                    <page string="Extensions">
+                        <field name="extension_ids" readonly="1">
+                            <list decoration-muted="state == 'cancelled'">
+                                <field name="date"/>
+                                <field name="plan_id"/>
+                                <field name="months"/>
+                                <field name="amount"/>
+                                <field name="sale_line_id"/>
+                                <field name="state" widget="badge"
+                                       decoration-success="state == 'active'"
+                                       decoration-danger="state == 'cancelled'"/>
+                                <field name="cancel_reason" optional="show"/>
+                                <field name="user_id" widget="many2one_avatar_user"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+</odoo>

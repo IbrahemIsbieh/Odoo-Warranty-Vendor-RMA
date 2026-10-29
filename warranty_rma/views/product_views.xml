@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_vendor_warranty" model="ir.ui.view">
+        <field name="name">product.template.form.vendor.warranty</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="warranty_management.product_template_form_warranty"/>
+        <field name="arch" type="xml">
+            <field name="warranty_months" position="after">
+                <field name="vendor_warranty_months"/>
+            </field>
+        </field>
+    </record>
+</odoo>

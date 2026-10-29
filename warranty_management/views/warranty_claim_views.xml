@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_warranty_claim_list" model="ir.ui.view">
+        <field name="name">warranty.claim.list</field>
+        <field name="model">warranty.claim</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="claim_date"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_warranty_claim_form" model="ir.ui.view">
+        <field name="name">warranty.claim.form</field>
+        <field name="model">warranty.claim</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_review" type="object" string="Start Review"
+                            class="btn-primary" invisible="state != 'new'"/>
+                    <button name="action_accept" type="object" string="Accept"
+                            class="btn-primary" invisible="state != 'review'"/>
+                    <button name="action_open_reject_wizard" type="object" string="Reject"
+                            invisible="state not in ('new','review')"/>
+                    <button name="action_open_resolve_wizard" type="object" string="Resolve"
+                            class="btn-primary" invisible="state != 'accepted'"/>
+                    <button name="action_close" type="object" string="Close"
+                            invisible="state != 'repair'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="new,review,accepted,repair,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="warranty_id" readonly="state != 'new'"/>
+                            <field name="partner_id"/>
+                            <field name="product_id"/>
+                            <field name="claim_date"/>
+                        </group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="is_in_warranty"/>
+                            <field name="resolution" invisible="not resolution"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Issue">
+                            <field name="description"/>
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                        <page string="Resolution"
+                              invisible="not resolution and not reject_reason">
+                            <group>
+                                <field name="reject_reason" invisible="not reject_reason"/>
+                                <field name="resolution_note" invisible="not resolution_note"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_warranty_claim_kanban" model="ir.ui.view">
+        <field name="name">warranty.claim.kanban</field>
+        <field name="model">warranty.claim</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" quick_create="false">
+                <field name="state"/>
+                <templates>
+                    <t t-name="card">
+                        <field name="name" class="fw-bold"/>
+                        <div><field name="partner_id"/></div>
+                        <div class="text-muted"><field name="product_id"/></div>
+                        <div class="mt-1"><field name="user_id" widget="many2one_avatar_user"/></div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_warranty_claim_search" model="ir.ui.view">
+        <field name="name">warranty.claim.search</field>
+        <field name="model">warranty.claim</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <filter name="my" string="My Claims" domain="[('user_id','=',uid)]"/>
+                <filter name="open" string="Open"
+                        domain="[('state','not in',('closed','rejected'))]"/>
+                <group>
+                    <filter name="g_state" string="Status" context="{'group_by':'state'}"/>
+                    <filter name="g_product" string="Product" context="{'group_by':'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_warranty_claim" model="ir.actions.act_window">
+        <field name="name">Claims</field>
+        <field name="res_model">warranty.claim</field>
+        <field name="view_mode">kanban,list,form</field>
+    </record>
+</odoo>

@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_warranty_record_user,warranty.record user,model_warranty_record,group_warranty_user,1,1,1,0
+access_warranty_record_manager,warranty.record manager,model_warranty_record,group_warranty_manager,1,1,1,1
+access_warranty_record_portal,warranty.record portal,model_warranty_record,base.group_portal,1,0,0,0
+access_warranty_claim_user,warranty.claim user,model_warranty_claim,group_warranty_user,1,1,1,0
+access_warranty_claim_manager,warranty.claim manager,model_warranty_claim,group_warranty_manager,1,1,1,1
+access_warranty_claim_portal,warranty.claim portal,model_warranty_claim,base.group_portal,1,0,1,0
+access_warranty_reject_wizard,reject wizard,model_warranty_claim_reject_wizard,group_warranty_user,1,1,1,1
+access_warranty_resolve_wizard,resolve wizard,model_warranty_claim_resolve_wizard,group_warranty_user,1,1,1,1

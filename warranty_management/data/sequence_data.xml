@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_warranty_record" model="ir.sequence">
+        <field name="name">Warranty Record</field>
+        <field name="code">warranty.record</field>
+        <field name="prefix">WR/%(year)s/</field>
+        <field name="padding">5</field>
+    </record>
+    <record id="seq_warranty_claim" model="ir.sequence">
+        <field name="name">Warranty Claim</field>
+        <field name="code">warranty.claim</field>
+        <field name="prefix">WC/%(year)s/</field>
+        <field name="padding">5</field>
+    </record>
+</odoo>

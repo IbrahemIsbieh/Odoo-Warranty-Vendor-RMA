@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_warranty_rma_list" model="ir.ui.view">
+        <field name="name">warranty.rma.list</field>
+        <field name="model">warranty.rma</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="claim_id"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <field name="vendor_id"/>
+                <field name="vendor_warranty_end"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'sent'"
+                       decoration-success="state == 'resolved'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_warranty_rma_form" model="ir.ui.view">
+        <field name="name">warranty.rma.form</field>
+        <field name="model">warranty.rma</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_send" type="object" string="Send to Vendor"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_resolve" type="object" string="Mark as Resolved"
+                            class="btn-primary" invisible="state != 'sent'"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ('draft', 'sent')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,sent,resolved"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_return_picking" type="object"
+                                class="oe_stat_button" icon="fa-truck"
+                                invisible="not return_picking_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Return</span>
+                            </div>
+                        </button>
+                        <button name="action_view_replacement_picking" type="object"
+                                class="oe_stat_button" icon="fa-download"
+                                invisible="not replacement_picking_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Replacement</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="is_vendor_covered or state in ('resolved', 'cancelled')">
+                        The vendor warranty is expired or unknown for this unit.
+                        Check the serial number and the receipt date before sending it.
+                    </div>
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+                    <group>
+                        <group string="Customer Claim">
+                            <field name="claim_id" readonly="state != 'draft'"/>
+                            <field name="warranty_id"/>
+                            <field name="customer_id"/>
+                            <field name="product_id"/>
+                            <field name="lot_id" readonly="state != 'draft'"/>
+                        </group>
+                        <group string="Vendor Warranty">
+                            <field name="vendor_id" readonly="state != 'draft'"/>
+                            <field name="purchase_order_id" readonly="state != 'draft'"/>
+                            <field name="receipt_date" readonly="state != 'draft'"/>
+                            <field name="vendor_warranty_end"/>
+                            <field name="is_vendor_covered"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Vendor Response">
+                        <field name="resolution" readonly="state != 'sent'"/>
+                        <field name="note" readonly="state in ('resolved', 'cancelled')"/>
+                        <field name="return_picking_id"/>
+                        <field name="replacement_picking_id"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_warranty_rma_search" model="ir.ui.view">
+        <field name="name">warranty.rma.search</field>
+        <field name="model">warranty.rma</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="vendor_id"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <filter name="open" string="Open"
+                        domain="[('state', 'in', ('draft', 'sent'))]"/>
+                <filter name="not_covered" string="Vendor Warranty Expired"
+                        domain="[('state', 'in', ('draft', 'sent')),
+                        '|', ('vendor_warranty_end', '=', False),
+                         ('vendor_warranty_end', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <group>
+                    <filter name="g_vendor" string="Vendor" context="{'group_by': 'vendor_id'}"/>
+                    <filter name="g_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="g_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_warranty_rma" model="ir.actions.act_window">
+        <field name="name">Vendor RMAs</field>
+        <field name="res_model">warranty.rma</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_open': 1}</field>
+    </record>
+
+    <menuitem id="menu_warranty_rma" name="Vendor RMAs"
+              parent="warranty_management.menu_warranty_root"
+              action="action_warranty_rma" sequence="30"/>
+</odoo>

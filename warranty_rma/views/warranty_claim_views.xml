@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_warranty_claim_form_rma" model="ir.ui.view">
+        <field name="name">warranty.claim.form.rma</field>
+        <field name="model">warranty.claim</field>
+        <field name="inherit_id" ref="warranty_management.view_warranty_claim_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_create_rma" type="object" string="Vendor RMA"
+                        invisible="state not in ('accepted', 'repair', 'closed')"/>
+            </xpath>
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_rmas" type="object"
+                            class="oe_stat_button" icon="fa-undo"
+                            invisible="rma_count == 0">
+                        <field name="rma_count" widget="statinfo" string="Vendor RMAs"/>
+                    </button>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
